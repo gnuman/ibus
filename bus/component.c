@@ -229,6 +229,11 @@ static void
 bus_component_factory_destroy_cb (BusFactoryProxy *factory,
                                   BusComponent    *component)
 {
+    if (component->pid == 0){
+        component->child_source_id = 0;
+        bus_component_start(component,0);
+    }
+        
     g_return_if_fail (component->factory == factory);
 
     g_object_unref (component->factory);
@@ -271,7 +276,7 @@ bus_component_set_factory (BusComponent    *component,
         g_signal_connect (factory, "destroy",
                           G_CALLBACK (bus_component_factory_destroy_cb), component);
     }
-
+    bus_component_set_restart(component,TRUE);
     /* emit the "notify" signal for the factory property on component. */
     g_object_notify ((GObject*) component, "factory");
 }
